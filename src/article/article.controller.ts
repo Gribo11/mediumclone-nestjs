@@ -12,7 +12,7 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
-  Query
+  Query,
 } from "@nestjs/common";
 import { ArticleService } from "./article.service";
 import { CreateArticleDto } from "./dto/createArticle.dto";
@@ -28,7 +28,7 @@ export class ArticleContorller {
     @User("id") currentUserId: number,
     @Query() query: any
   ): Promise<ArticlesResponseInterface> {
-    return await this.articleService.findAll(currentUserId, query)
+    return await this.articleService.findAll(currentUserId, query);
   }
 
   @Post()
@@ -73,6 +73,19 @@ export class ArticleContorller {
     const article = await this.articleService.updateArticle(
       slug,
       updateArticleDto,
+      currentUserId
+    );
+    return this.articleService.buildArticleResponse(article);
+  }
+
+  @Post(":slug/favorite")
+  @UseGuards(AuthGuard)
+  async addArticleToFavorites(
+    @User("id") currentUserId: number,
+    @Param("slug") slug: string
+  ): Promise<ArticleResponseInterface> {
+    const article = await this.articleService.addArticleToFavorites(
+      slug,
       currentUserId
     );
     return this.articleService.buildArticleResponse(article);
